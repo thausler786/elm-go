@@ -2,7 +2,7 @@ module Main exposing (init, render)
 
 import Html exposing (div, text)
 import Html.Attributes exposing (style)
-
+import Dict exposing (Dict)
 
 grid =
     div
@@ -12,28 +12,28 @@ grid =
         , style "grid-template-rows" "repeat(9, 40px)"
         , style "display" "grid"
         ]
-        gridElements
-
-
-gridElements =
-    [ intersectionDiv ]
-
-
-intersectionDiv =
-    div
-        [ style "width" "40px"
-        , style "height" "40px"
-        , style "background-color" "#FFC300"
-        , style "border" "dashed 1px black"
-        ]
-        []
-
+        (render init)
 
 render : Position -> List (Html.Html msg)
 render position =
     position.board |> List.foldl (List.append) [] |> List.map renderIntersection
 
-renderIntersection intersectionRecord = intersectionDiv
+renderIntersection intersectionRecord = 
+  div
+        [ style "width" "40px"
+        , style "height" "40px"
+        , style "background-color" (stateToColor intersectionRecord.state)
+        , style "border" "dashed 1px black"
+        ]
+        []
+
+stateToColor : String -> String
+stateToColor state = 
+  case state of
+    "Black" -> "black"
+    "White" -> "white"
+    "Empty" -> "#FFC300"
+    _ -> "red"
 
 -- MAIN
 
@@ -41,13 +41,11 @@ renderIntersection intersectionRecord = intersectionDiv
 main =
     grid
 
-
-
 -- MODEL
 
 
 type alias Intersection =
-    { state : State
+    { state : String
     }
 
 
@@ -56,12 +54,8 @@ type alias Position =
     , board : List (List Intersection)
     }
 
-type State
-    = Black
-    | White
-    | Empty
 
 
 init : Position
 init =
-    { board = [ [ { state = Empty }, { state = Black } ] ], dimensions = 9 }
+    { board = [ [ { state = "Empty" }, { state = "Black" } ] ], dimensions = 9 }
